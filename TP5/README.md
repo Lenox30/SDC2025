@@ -47,8 +47,10 @@ Muestra correctamente:
 Este diseño modular separa correctamente las responsabilidades entre espacio de kernel (generación y control del dispositivo) y espacio de usuario (interacción, visualización y lógica de control de escala).
 
 ## Diseño del driver (CDD)
+Diseñamos dos drivers: uno que originalmente fue pensado para ser usado con los puertos GPIO de la raspberry PI y otro diseñado para simular esas señales GPIO en en el sistema operativo de la Raspberry.
 
-El módulo del kernel desarrollado implementa un dispositivo de caracteres que expone una interfaz en /dev/cdd_signal. Su diseño se basa en la creación y gestión de un dispositivo que simula dos señales digitales con comportamiento periódico.
+### Diver Virtual
+El módulo del kernel desarrollado implementa un dispositivo de caracteres que expone una interfaz en /dev/cdd_signal. Su diseño se basa en la creación y gestión de un dispositivo que simula dos señales digitales con comportamiento periódico. Este Desarrollo esta en `cdd/cdd_driver_virtual.c`
 
 **Características principales del driver**
 - Dispositivo creado: /dev/cdd_signal
@@ -64,6 +66,10 @@ El driver utiliza las siguientes funciones clave del núcleo de Linux:
 - class_create(), device_create(): para hacerlo visible en /dev/.
 - timer_setup() + mod_timer(): para ejecutar periódicamente la lógica de simulación.
 - file_operations: define los callbacks .open, .release, .read y .write.
+
+### Driver Original
+Este driver usa el timer de linux para poder sensar cada un segundo las señales GPIO de la raspberri. el intercambio se realiza cada vez que el usuario escribe en los archivos de gpio. Se encarga tambien de configurar los GPIO y liberarlos cuando el driver sea descargado. Este desarrollo esta en `cdd/cdd_driver.c`.
+Tiene la misma estructura del Driver Virtual.
 
 **Simulación de señales**
 
